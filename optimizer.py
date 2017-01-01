@@ -44,15 +44,15 @@ def main():
     l3_h_d = np.vectorize(lambda x: x * (1 - x)) # d softmax
 
     # Loss Function
-    lf = lambda y,t: -t * np.log(y+0.0000001) # multi cross entropy
-    lf_d = np.vectorize(lambda y,t: t/(y+0.0000001)) # d Cross entropy
+    lf = lambda y,t: -t * np.log(y+0.00001) # multi cross entropy
+    lf_d = np.vectorize(lambda y,t: -t/(y+0.00001)) # d Cross entropy
 
     # Optimizer(SGD)
     alpha = 0.01
 
     # get_data
     iris = iris_dataset()
-    iris.reindex(np.random.permutation(iris.index))
+    iris = iris.reindex(np.random.permutation(iris.index))
     iris_data = np.array(iris.iloc[:,0:4])
     iris_teacher = np.array(iris.iloc[:,4:7])
     for in_vector, teacher_vector in zip(iris_data, iris_teacher):
