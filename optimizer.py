@@ -27,8 +27,6 @@ def iris_dataset():
 def main():
     # Define
     np.random.seed(10)
-    in_vector = np.array([0.3, 0.5, 0.7, 0.2])
-    teacher_vector = np.array([0.0, 0.0, 1.0])
 
     # Layer 1
     l1_w = np.random.rand(3,4)
