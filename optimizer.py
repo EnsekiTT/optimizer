@@ -40,8 +40,8 @@ def main():
 
     # Layer 3
     l3_w = np.random.rand(3,3)
-    l3_h = np.vectorize(lambda x: x) # identity
-    l3_h_d = np.vectorize(lambda x: 1) # d ReLU
+    l3_h = lambda x, xs: np.exp(x)/sum(np.exp(xs)) # softmax
+    l3_h_d = np.vectorize(lambda x: x * (1 - x)) # d softmax
 
     # Loss Function
     lf = lambda y,t: -t * np.log(y+0.0000001) # multi cross entropy
@@ -59,7 +59,7 @@ def main():
         # Learning
         l1 = l1_h(l1_w.dot(in_vector))
         l2 = l2_h(l2_w.dot(l1))
-        l3 = l3_h(l3_w.dot(l2))
+        l3 = np.array([l3_h(x, l3_w.dot(l2)) for x in l3_w.dot(l2)])
 
         # Calc Loss
         E = lf(l3, teacher_vector)
