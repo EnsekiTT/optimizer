@@ -42,12 +42,12 @@ def main():
     l1_h_d = np.vectorize(lambda x: 1 if x > 0 else 0) # d ReLU
     l1_delta = l1_h_d(l1)*l2_w.T.dot(l2_delta)
 
-    in_h_d = np.vectorize(lambda x: 1 if x > 0 else 0) # d ReLU
-    in_delta = in_h_d(in_vector)*l1_w.T.dot(l1_delta)
-
     # Optimization(SGD)
-    l1_w = l1_w - alpha*in_vector*in_delta
+    l1_w = l1_w - alpha*in_vector[:,np.newaxis].dot(l1_delta[np.newaxis,:]) - alpha*lamd*l1_w
+    l2_w = l2_w - alpha*l1[:,np.newaxis].dot(l2_delta[np.newaxis,:]) - alpha*lamb*l2_w
+    l3_w = l3_w - alpha*l2[:,np.newaxis].dot(l3_delta[np.newaxis,:]) - alpha*lamb*l3_w
 
+    
 
 if __name__ == "__main__":
     main()
