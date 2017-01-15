@@ -30,20 +30,20 @@ def main():
 
     # Layer 1
     l1_in = 4
-    l1_out = 10
+    l1_out = 100
     l1_w = np.random.rand(l1_out,l1_in)
     l1_h = np.vectorize(lambda x: max(0,x)) # ReLU
     l1_h_d = np.vectorize(lambda x: 1 if x > 0 else 0) # d ReLU
 
     # Layer 2
-    l2_in = 10
-    l2_out = 10
+    l2_in = 100
+    l2_out = 100
     l2_w = np.random.rand(l2_out,l2_in)
     l2_h = np.vectorize(lambda x: max(0,x)) # ReLU
     l2_h_d = np.vectorize(lambda x: 1 if x > 0 else 0) # d ReLU
 
     # Layer 3
-    l3_in = 10
+    l3_in = 100
     l3_out = 3
     l3_w = np.random.rand(l3_out,l3_in)
     l3_h = np.vectorize(lambda x: x)
@@ -55,7 +55,8 @@ def main():
     lf_d = np.vectorize(lambda y,t: t - y) # softmax cross entropy
 
     # Optimizer(SGD)
-    alpha = 0.001
+    alpha = 0.01
+    lamb = 0.001
 
     # Get data
     iris = iris_dataset()
@@ -71,7 +72,7 @@ def main():
     # Learning Loop
     epoch = 30
     for e in range(epoch):
-        batch_size = 10
+        batch_size = 100
         for start in range(0,len(iris_train_d),batch_size):
             in_data_matrix = iris_train_d[start:start+batch_size]
             in_teacher_matrix = iris_train_t[start:start+batch_size]
@@ -84,7 +85,7 @@ def main():
                 # Learning
                 l1 = l1_h(l1_w.dot(in_vector))
                 l2 = l2_h(l2_w.dot(l1))
-                l3 = l3_h(l3_w.dot(l2))
+                l3 = l3_w.dot(l2)
 
                 # Calc Loss
                 #print(l3)
@@ -97,14 +98,14 @@ def main():
                 l2_delta = l2_h_d(l2)*l3_w.T.dot(l3_delta)
                 l1_delta = l1_h_d(l1)*l2_w.T.dot(l2_delta)
 
-                l1_dw += in_vector[:,np.newaxis].dot(l1_delta[np.newaxis,:]).T
-                l2_dw += l1[:,np.newaxis].dot(l2_delta[np.newaxis,:]).T
-                l3_dw += l2[:,np.newaxis].dot(l3_delta[np.newaxis,:]).T
+                l1_dw += in_vector[:,np.newaxis].dot(l1_delta[np.newaxis,:]).T/batch_size
+                l2_dw += l1[:,np.newaxis].dot(l2_delta[np.newaxis,:]).T/batch_size
+                l3_dw += l2[:,np.newaxis].dot(l3_delta[np.newaxis,:]).T/batch_size
 
             # Optimization(SGD)
-            l1_w -= alpha*l1_dw
-            l2_w -= alpha*l2_dw
-            l3_w -= alpha*l3_dw
+            l1_w = l1_w - (alpha*l1_dw) - (alpha * lamb * l1_w)
+            l2_w = l2_w - (alpha*l2_dw) - (alpha * lamb * l2_w)
+            l3_w = l3_w - (alpha*l3_dw) - (alpha * lamb * l3_w)
         print(E)
 
 if __name__ == "__main__":
